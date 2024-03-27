@@ -136,7 +136,7 @@ form label {
 }
 
 .tag-business {
-  background: green;
+  background: darkgreen;
 }
 
 .tag-education {
@@ -164,6 +164,21 @@ form label {
 
 .delete:hover {
   color: #000;
+}
+
+.update {
+  cursor: pointer;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  text-transform: uppercase;
+  border: none;
+  background-color: green;
+}
+
+.update:hover {
+  background-color: darkgreen;
 }
 
 .date {

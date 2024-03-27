@@ -14,6 +14,21 @@ class IdeaList {
     this._validTags.add('inventions');
   }
 
+  addEventListeners() {
+    this._ideaListEl.addEventListener('click', (e) => {
+      if (e.target.classList.contains('fa-times')) {
+        e.stopImmediatePropagation();
+        const ideaId = e.target.parentElement.parentElement.dataset.id;
+        this.deleteIdea(ideaId);
+      }
+      if (e.target.classList.contains('update')) {
+        e.stopImmediatePropagation();
+        const ideaId = e.target.parentElement.dataset.id;
+        this.updateIdea(ideaId);
+      }
+    });
+  }
+
   async getIdeas() {
     try {
       const res = await IdeasApi.getIdeas();
@@ -22,6 +37,22 @@ class IdeaList {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async deleteIdea(ideaId) {
+    try {
+      await IdeasApi.deleteIdea(ideaId);
+      this._ideas.filter((idea) => idea._id !== ideaId);
+      this.getIdeas();
+    } catch (error) {
+      alert('You can not delete this resource');
+    }
+  }
+
+  async updateIdea(ideaId) {
+    const idea = this._ideas.find((idea) => idea._id === ideaId);
+    document.dispatchEvent(new CustomEvent('editIdea', { detail: idea }));
+    document.dispatchEvent(new Event('openmodal'));
   }
 
   addIdeaToList(idea) {
@@ -42,8 +73,20 @@ class IdeaList {
     this._ideaListEl.innerHTML = this._ideas
       .map((idea) => {
         const tagClass = this.getTagClassName(idea.tag);
-        return `<div class="card">
-        <button class="delete"><i class="fas fa-times"></i></button>
+        const deleteBtn =
+          idea.username === localStorage.getItem('username')
+            ? `<button class="delete">
+              <i class="fas fa-times"></i>
+            </button>`
+            : '';
+        const updateBtn =
+          idea.username === localStorage.getItem('username')
+            ? `<button class="update">
+          Update Idea
+        </button>`
+            : '';
+        return `<div class="card" data-id="${idea._id}">
+        ${deleteBtn}
         <h3>
           ${idea.text}
         </h3>
@@ -52,9 +95,11 @@ class IdeaList {
           Posted on <span class="date">${idea.date}</span> by
           <span class="author">${idea.username}</span>
         </p>
+        ${updateBtn}
       </div>`;
       })
       .join('');
+    this.addEventListeners();
   }
 }
 
